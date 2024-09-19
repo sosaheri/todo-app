@@ -1,11 +1,5 @@
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/) 
 
-
-
-
-
-
-
 # Project Title
 
 A brief description of what this project does and who it's for
@@ -73,3 +67,17 @@ Start the server
   npm run start
 ```
 
+composer install
+
+cp .env.example .env
+
+php artisan key:generate
+
+php artisan migrate
+
+-------
+
+
+npm install
+
+npm run dev
