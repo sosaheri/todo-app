@@ -47,6 +47,7 @@
 
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 export default {
   data() {
@@ -82,14 +83,27 @@ export default {
   },
   methods: {
     deleteTask(taskId) {
-      console.error(taskId);
-      axios.delete(`/tasks/${taskId}`)
-        .then(() => {
-          this.tasks = this.tasks.filter(task => task.id !== taskId);
-        })
-        .catch(error => {
-          console.error(error);
-        });
+      Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esta acción no se puede deshacer',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          axios.delete(`/tasks/${taskId}`)
+            .then(() => {
+              this.tasks = this.tasks.filter(task => task.id !== taskId);
+              Swal.fire('¡Éxito!', 'La tarea se eliminó correctamente.', 'success');
+            })
+            .catch(error => {
+              console.error(error);
+              Swal.fire('Error', 'Ocurrió un error al eliminar la tarea.', 'error');
+            });
+        }
+      });
     },
     editTask(task) {
       this.$router.push({ name: 'EditTaskForm', params: { id: task.id } });
@@ -106,6 +120,7 @@ export default {
         .then(response => {
           this.tasks.push(response.data);
           this.newTaskTitle = '';
+          Swal.fire('¡Éxito!', 'La tarea se creó correctamente.', 'success');
         })
         .catch(error => {
           console.error(error);
@@ -122,16 +137,46 @@ export default {
         });
     },
     eliminarCompletadas() {
-      this.tasks = this.tasks.filter(task => !task.is_completed);
-
-      this.tasks.forEach(task => {
-        axios.delete(`/tasks/${task.id}`)
-          .then(() => {
-            console.log('Tarea eliminada:', task.id);
-          })
-          .catch(error => {
-            console.error(error);
-          });
+      Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Quieres eliminar todas las tareas completadas?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar'
+      }).then((result) => {
+        if (result.isConfirmed)
+      {
+          const completedTasks = this.tasks.filter(task => task.is_completed);
+          if (completedTasks.length > 0) {
+            Swal.fire({
+              title: 'Confirmación final',
+              text: `¿Estás seguro de eliminar ${completedTasks.length} tareas completadas?`,
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Eliminar'
+            }).then((confirmed) => {
+              if (confirmed.isConfirmed) {
+                completedTasks.forEach(task => {
+                  axios.delete(`/tasks/${task.id}`)
+                    .then(() => {
+                      console.log('Tarea eliminada:', task.id);
+                      this.tasks = this.tasks.filter(remainingTask => remainingTask.id !== task.id);
+                    })
+                    .catch(error => {
+                      console.error(error);
+                      Swal.fire('Error', 'Ocurrió un error al eliminar tareas.', 'error');
+                    });
+                });
+              }
+            });
+          } else {
+            Swal.fire('No hay tareas completadas para eliminar.', '', 'info');
+          }
+        }
       });
     },
     ordenarPorFecha() {

@@ -10,6 +10,7 @@
 
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 export default {
   props: {
@@ -24,12 +25,8 @@ export default {
     };
   },
   mounted() {
-    
-    console.log(this.$route.params.id);
-
     axios.get(`/tasks/${this.$route.params.id}`)
-        .then(response => {
-        
+        .then(response => {        
         this.task = response.data;
         })
         .catch(error => {
@@ -38,8 +35,10 @@ export default {
     },
   methods: {
     submitForm() {
+      
       axios.put(`/tasks/${this.$route.params.id}`, this.task)
         .then(response => {
+          Swal.fire('¡Éxito!', 'La tarea se actualizo correctamente.', 'success');
           this.$router.push('/');
         })
         .catch(error => {
