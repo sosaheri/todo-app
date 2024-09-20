@@ -41,7 +41,7 @@
       </div>
     </div>
 
-    <div class="order-button" @click="ordenarPorFecha"><a href="#">Ordenar por fecha</a></div>
+    <!-- <div class="order-button" @click="ordenarPorFecha"><a href="#">Ordenar por fecha</a></div> -->
   </div>
 </template>
 
